@@ -1,0 +1,225 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "acrName": {
+            "type": "String",
+            "metadata": {
+                "description": "Specifies the name of the Azure Container Registry."
+            }
+        },
+        "workspaceName": {
+            "type": "String",
+            "metadata": {
+                "description": "Specifies the name of the Azure Machine Learning virtual cluster."
+            }
+        },
+        "skipValidation": {
+            "defaultValue": false,
+            "type": "Bool",
+            "metadata": {
+                "description": "Optional : If set to true, the call will skip datastore validation. Defaults to false"
+            }
+        },
+        "storageAccountName": {
+            "defaultValue": "[concat('sa',uniqueString(resourceGroup().id))]",
+            "type": "String",
+            "metadata": {
+                "description": "The name for the storage account to created and associated with the workspace."
+            }
+        },
+        "dataStoreStorageAccountName": {
+            "defaultValue": "[concat('sads',uniqueString(resourceGroup().id))]",
+            "type": "String",
+            "metadata": {
+                "description": "The name for the premium storage account to used with aml datastore."
+            }
+        },
+        "containerName": {
+            "defaultValue": "azureml",
+            "type": "String",
+            "metadata": {
+                "description": "Specifies the name of the blob container."
+            }
+        },
+        "dataStoreName": {
+            "defaultValue": "[concat('amlds',uniqueString(resourceGroup().id))]",
+            "type": "String",
+            "metadata": {
+                "description": "The name for the premium storage account to used with aml datastore."
+            }
+        },
+        "keyVaultName": {
+            "defaultValue": "[concat('kv',uniqueString(resourceGroup().id))]",
+            "type": "String",
+            "metadata": {
+                "description": "The name for the key vault to created and associated with the workspace."
+            }
+        },
+        "applicationInsightsName": {
+            "defaultValue": "[concat('ai',uniqueString(resourceGroup().id))]",
+            "type": "String",
+            "metadata": {
+                "description": "The name for the application insights to created and associated with the workspace."
+            }
+        },
+        "tenantId": {
+            "defaultValue": "72f988bf-86f1-41af-91ab-2d7cd011db47",
+            "type": "String",
+            "metadata": {
+                "description": "The service principal Tenant ID."
+            }
+        },
+        "location": {
+            "defaultValue": "eastus",
+            "type": "String",
+            "metadata": {
+                "description": "The location of the Azure Machine Learning Workspace."
+            }
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2019-04-01",
+            "name": "[parameters('storageAccountName')]",
+            "location": "[parameters('location')]",
+            "sku": {
+                "name": "Standard_LRS"
+            },
+            "kind": "StorageV2",
+            "properties": {
+                "encryption": {
+                    "services": {
+                        "blob": {
+                            "enabled": true
+                        },
+                        "file": {
+                            "enabled": true
+                        }
+                    },
+                    "keySource": "Microsoft.Storage"
+                },
+                "supportsHttpsTrafficOnly": true,
+                "allowSharedKeyAccess": false
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2019-06-01",
+            "name": "[parameters('dataStoreStorageAccountName')]",
+            "location": "[parameters('location')]",
+            "sku": {
+                "name": "Premium_LRS"
+            },
+            "kind": "StorageV2",
+            "properties": {
+                "encryption": {
+                    "services": {
+                        "blob": {
+                            "enabled": true
+                        },
+                        "file": {
+                            "enabled": true
+                        }
+                    },
+                    "keySource": "Microsoft.Storage"
+                },
+                "supportsHttpsTrafficOnly": true,
+                "allowSharedKeyAccess": false
+            },
+            "resources": [
+                {
+                    "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+                    "apiVersion": "2019-06-01",
+                    "name": "[concat('default/', parameters('containerName'))]",
+                    "dependsOn": [
+                        "[parameters('dataStoreStorageAccountName')]"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "Microsoft.KeyVault/vaults",
+            "apiVersion": "2019-09-01",
+            "name": "[parameters('keyVaultName')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "tenantId": "[parameters('tenantId')]",
+                "sku": {
+                    "name": "standard",
+                    "family": "A"
+                },
+                "accessPolicies": []
+            }
+        },
+        {
+            "type": "Microsoft.Insights/components",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[parameters('applicationInsightsName')]",
+            "location": "[parameters('location')]",
+            "kind": "web",
+            "properties": {
+                "Application_Type": "web"
+            }
+        },
+        {
+            "type": "Microsoft.ContainerRegistry/registries",
+            "apiVersion": "2019-12-01-preview",
+            "name": "[parameters('acrName')]",
+            "location": "[parameters('location')]",
+            "tags": {
+                "displayName": "Container Registry",
+                "container.registry": "[parameters('acrName')]"
+            },
+            "sku": {
+                "name": "Basic"
+            },
+            "properties": {
+                "adminUserEnabled": true
+            }
+        },
+        {
+            "type": "Microsoft.MachineLearningServices/workspaces",
+            "apiVersion": "2020-03-01",
+            "name": "[parameters('workspaceName')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Insights/components', parameters('applicationInsightsName'))]",
+                "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
+                "[resourceId('Microsoft.ContainerRegistry/registries', parameters('acrName'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+            ],
+            "identity": {
+                "type": "systemAssigned"
+            },
+            "properties": {
+                "friendlyName": "[parameters('workspaceName')]",
+                "storageAccount": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
+                "keyVault": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
+                "containerRegistry": "[resourceId('Microsoft.ContainerRegistry/registries', parameters('acrName'))]",
+                "applicationInsights": "[resourceId('Microsoft.Insights/components', parameters('applicationInsightsName'))]"
+            },
+            "resources": [
+                {
+                    "type": "datastores",
+                    "apiVersion": "2020-05-01-preview",
+                    "name": "[parameters('dataStoreName')]",
+                    "location": "[parameters('location')]",
+                    "dependsOn": [
+                        "[parameters('workspaceName')]"
+                    ],
+                    "properties": {
+                        "DataStoreType": "blob",
+                        "SkipValidation": "[parameters('skipValidation')]",
+                        "AccountName": "[parameters('dataStoreStorageAccountName')]",
+                        "ContainerName": "[parameters('containerName')]",
+                        "AccountKey": "[listKeys(resourceId(resourceGroup().name,'Microsoft.Storage/storageAccounts', parameters('dataStoreStorageAccountName')), '2019-06-01').keys[0].value]",
+                        "StorageAccountSubscriptionId": "[subscription().subscriptionId]",
+                        "StorageAccountResourceGroup": "[resourceGroup().name]"
+                    }
+                }
+            ]
+        }
+    ]
+}
