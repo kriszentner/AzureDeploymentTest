@@ -1,5 +1,5 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
         "acrName": {
@@ -56,6 +56,13 @@
                 "description": "The name for the key vault to created and associated with the workspace."
             }
         },
+        "logAnalyticsWorkspaceName": {
+        "type": "String",
+        "defaultValue": "[concat('law-', uniqueString(resourceGroup().id))]",
+        "metadata": {
+            "description": "Name of the Log Analytics workspace."
+        }
+        },
         "applicationInsightsName": {
             "defaultValue": "[concat('ai',uniqueString(resourceGroup().id))]",
             "type": "String",
@@ -71,7 +78,7 @@
             }
         },
         "location": {
-            "defaultValue": "eastus",
+            "defaultValue": "[resourceGroup().location]",
             "type": "String",
             "metadata": {
                 "description": "The location of the Azure Machine Learning Workspace."
@@ -130,7 +137,7 @@
             },
             "resources": [
                 {
-                    "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+                    "type": "blobServices/containers",
                     "apiVersion": "2019-06-01",
                     "name": "[concat('default/', parameters('containerName'))]",
                     "dependsOn": [
@@ -154,6 +161,13 @@
             }
         },
         {
+        "type": "Microsoft.OperationalInsights/workspaces",
+        "apiVersion": "2015-11-01-preview",
+        "name": "[parameters('logAnalyticsWorkspaceName')]",
+        "location": "[parameters('location')]",
+        "properties": {}
+        },
+        {
             "type": "Microsoft.Insights/components",
             "apiVersion": "2018-05-01-preview",
             "name": "[parameters('applicationInsightsName')]",
@@ -165,7 +179,7 @@
         },
         {
             "type": "Microsoft.ContainerRegistry/registries",
-            "apiVersion": "2019-12-01-preview",
+            "apiVersion": "2017-10-01",
             "name": "[parameters('acrName')]",
             "location": "[parameters('location')]",
             "tags": {
@@ -176,12 +190,12 @@
                 "name": "Basic"
             },
             "properties": {
-                "adminUserEnabled": true
+                "adminUserEnabled": "True"
             }
         },
         {
             "type": "Microsoft.MachineLearningServices/workspaces",
-            "apiVersion": "2020-03-01",
+            "apiVersion": "2020-01-01",
             "name": "[parameters('workspaceName')]",
             "location": "[parameters('location')]",
             "dependsOn": [
