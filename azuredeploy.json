@@ -3,12 +3,14 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "acrName": {
+            "defaultValue": "[concat(uniqueString(resourceGroup().id),'ACR')]",
             "type": "String",
             "metadata": {
                 "description": "Specifies the name of the Azure Container Registry."
             }
         },
         "workspaceName": {
+            "defaultValue": "[concat(uniqueString(resourceGroup().id),'WS')]",
             "type": "String",
             "metadata": {
                 "description": "Specifies the name of the Azure Machine Learning virtual cluster."
