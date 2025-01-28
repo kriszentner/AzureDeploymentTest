@@ -4,62 +4,62 @@
     "parameters": {
         "acrName": {
             "defaultValue": "[concat(uniqueString(resourceGroup().id),'ACR')]",
-            "type": "String",
+            "type": "string",
             "metadata": {
                 "description": "Specifies the name of the Azure Container Registry."
             }
         },
         "workspaceName": {
             "defaultValue": "[concat(uniqueString(resourceGroup().id),'WS')]",
-            "type": "String",
+            "type": "string",
             "metadata": {
                 "description": "Specifies the name of the Azure Machine Learning virtual cluster."
             }
         },
         "skipValidation": {
             "defaultValue": false,
-            "type": "Bool",
+            "type": "bool",
             "metadata": {
                 "description": "Optional : If set to true, the call will skip datastore validation. Defaults to false"
             }
         },
         "storageAccountName": {
             "defaultValue": "[concat('sa',uniqueString(resourceGroup().id))]",
-            "type": "String",
+            "type": "string",
             "metadata": {
                 "description": "The name for the storage account to created and associated with the workspace."
             }
         },
         "dataStoreStorageAccountName": {
             "defaultValue": "[concat('sads',uniqueString(resourceGroup().id))]",
-            "type": "String",
+            "type": "string",
             "metadata": {
                 "description": "The name for the premium storage account to used with aml datastore."
             }
         },
         "containerName": {
             "defaultValue": "azureml",
-            "type": "String",
+            "type": "string",
             "metadata": {
                 "description": "Specifies the name of the blob container."
             }
         },
         "dataStoreName": {
             "defaultValue": "[concat('amlds',uniqueString(resourceGroup().id))]",
-            "type": "String",
+            "type": "string",
             "metadata": {
                 "description": "The name for the premium storage account to used with aml datastore."
             }
         },
         "keyVaultName": {
             "defaultValue": "[concat('kv',uniqueString(resourceGroup().id))]",
-            "type": "String",
+            "type": "string",
             "metadata": {
                 "description": "The name for the key vault to created and associated with the workspace."
             }
         },
         "logAnalyticsWorkspaceName": {
-            "type": "String",
+            "type": "string",
             "defaultValue": "[concat('law-', uniqueString(resourceGroup().id))]",
             "metadata": {
                 "description": "Name of the Log Analytics workspace."
@@ -67,26 +67,26 @@
         },
         "applicationInsightsName": {
             "defaultValue": "[concat('ai',uniqueString(resourceGroup().id))]",
-            "type": "String",
+            "type": "string",
             "metadata": {
                 "description": "The name for the application insights to created and associated with the workspace."
             }
         },
         "tenantId": {
             "defaultValue": "72f988bf-86f1-41af-91ab-2d7cd011db47",
-            "type": "String",
+            "type": "string",
             "metadata": {
                 "description": "The service principal Tenant ID."
             }
         },
         "location": {
             "defaultValue": "[resourceGroup().location]",
-            "type": "String",
+            "type": "string",
             "metadata": {
                 "description": "The location of the Azure Machine Learning Workspace."
             }
         },
-        "userAssignedIdentityName": {
+        "userAssignedIdentity": {
             "defaultValue": "[concat('uami-', uniqueString(resourceGroup().id))]",
             "type": "string",
             "metadata": {
@@ -97,13 +97,13 @@
     "resources": [
         {
             "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
-            "apiVersion": "2018-11-30",
-            "name": "[parameters('userAssignedIdentityName')]",
+            "apiVersion": "2023-07-31-preview",
+            "name": "[parameters('userAssignedIdentity')]",
             "location": "[parameters('location')]"
         },
         {
             "type": "Microsoft.Storage/storageAccounts",
-            "apiVersion": "2023-01-01",
+            "apiVersion": "2023-05-01",
             "name": "[parameters('storageAccountName')]",
             "location": "[parameters('location')]",
             "sku": {
@@ -128,7 +128,7 @@
         },
         {
             "type": "Microsoft.Storage/storageAccounts",
-            "apiVersion": "2023-01-01",
+            "apiVersion": "2023-05-01",
             "name": "[parameters('dataStoreStorageAccountName')]",
             "location": "[parameters('location')]",
             "sku": {
@@ -153,7 +153,7 @@
         },
         {
             "type": "Microsoft.Storage/storageAccounts/blobServices",
-            "apiVersion": "2023-01-01",
+            "apiVersion": "2023-05-01",
             "name": "[format('{0}/{1}', parameters('dataStoreStorageAccountName'), 'default')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Storage/storageAccounts', parameters('dataStoreStorageAccountName'))]"
@@ -161,7 +161,7 @@
         },
         {
             "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
-            "apiVersion": "2023-01-01",
+            "apiVersion": "2023-05-01",
             "name": "[format('{0}/{1}/{2}', parameters('dataStoreStorageAccountName'), 'default', parameters('containerName'))]",
             "dependsOn": [
                 "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('dataStoreStorageAccountName'), 'default')]"
@@ -183,15 +183,29 @@
             }
         },
         {
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2022-04-01",
+            "scope": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
+            "name": "[guid(resourceGroup().id, 'keyvault-admin')]",
+            "properties": {
+                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '00482a5a-887f-4fb3-b363-3b7fe8e74483')]",
+                "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('userAssignedIdentity')), '2018-11-30').principalId]"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
+                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('userAssignedIdentity'))]"
+            ]
+        },
+        {
             "type": "Microsoft.OperationalInsights/workspaces",
-            "apiVersion": "2020-03-01-preview",
+            "apiVersion": "2023-09-01",
             "name": "[parameters('logAnalyticsWorkspaceName')]",
             "location": "[parameters('location')]",
             "properties": {}
         },
         {
             "type": "Microsoft.Insights/components",
-            "apiVersion": "2018-05-01-preview",
+            "apiVersion": "2020-02-02",
             "name": "[parameters('applicationInsightsName')]",
             "location": "[parameters('location')]",
             "kind": "web",
@@ -201,7 +215,7 @@
         },
         {
             "type": "Microsoft.ContainerRegistry/registries",
-            "apiVersion": "2017-10-01",
+            "apiVersion": "2023-11-01-preview",
             "name": "[parameters('acrName')]",
             "location": "[parameters('location')]",
             "tags": {
@@ -217,7 +231,7 @@
         },
         {
             "type": "Microsoft.MachineLearningServices/workspaces",
-            "apiVersion": "2020-03-01",
+            "apiVersion": "2024-10-01",
             "name": "[parameters('workspaceName')]",
             "location": "[parameters('location')]",
             "dependsOn": [
