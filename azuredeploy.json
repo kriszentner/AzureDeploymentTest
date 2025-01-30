@@ -1,275 +1,541 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "acrName": {
-            "defaultValue": "[concat(uniqueString(resourceGroup().id),'ACR')]",
-            "type": "string",
-            "metadata": {
-                "description": "Specifies the name of the Azure Container Registry."
-            }
-        },
-        "workspaceName": {
-            "defaultValue": "[concat(uniqueString(resourceGroup().id),'WS')]",
-            "type": "string",
-            "metadata": {
-                "description": "Specifies the name of the Azure Machine Learning virtual cluster."
-            }
-        },
-        "skipValidation": {
-            "defaultValue": false,
-            "type": "bool",
-            "metadata": {
-                "description": "Optional : If set to true, the call will skip datastore validation. Defaults to false"
-            }
-        },
-        "storageAccountName": {
-            "defaultValue": "[concat('sa',uniqueString(resourceGroup().id))]",
-            "type": "string",
-            "metadata": {
-                "description": "The name for the storage account to created and associated with the workspace."
-            }
-        },
-        "dataStoreStorageAccountName": {
-            "defaultValue": "[concat('sads',uniqueString(resourceGroup().id))]",
-            "type": "string",
-            "metadata": {
-                "description": "The name for the premium storage account to used with aml datastore."
-            }
-        },
-        "containerName": {
-            "defaultValue": "azureml",
-            "type": "string",
-            "metadata": {
-                "description": "Specifies the name of the blob container."
-            }
-        },
-        "dataStoreName": {
-            "defaultValue": "[concat('amlds',uniqueString(resourceGroup().id))]",
-            "type": "string",
-            "metadata": {
-                "description": "The name for the premium storage account to used with aml datastore."
-            }
-        },
-        "keyVaultName": {
-            "defaultValue": "[concat('kv',uniqueString(resourceGroup().id))]",
-            "type": "string",
-            "metadata": {
-                "description": "The name for the key vault to created and associated with the workspace."
-            }
-        },
-        "logAnalyticsWorkspaceName": {
-            "type": "string",
-            "defaultValue": "[concat('law-', uniqueString(resourceGroup().id))]",
-            "metadata": {
-                "description": "Name of the Log Analytics workspace."
-            }
-        },
-        "applicationInsightsName": {
-            "defaultValue": "[concat('ai',uniqueString(resourceGroup().id))]",
-            "type": "string",
-            "metadata": {
-                "description": "The name for the application insights to created and associated with the workspace."
-            }
-        },
-        "tenantId": {
-            "defaultValue": "72f988bf-86f1-41af-91ab-2d7cd011db47",
-            "type": "string",
-            "metadata": {
-                "description": "The service principal Tenant ID."
-            }
-        },
-        "location": {
-            "defaultValue": "[resourceGroup().location]",
-            "type": "string",
-            "metadata": {
-                "description": "The location of the Azure Machine Learning Workspace."
-            }
-        },
-        "userAssignedIdentity": {
-            "defaultValue": "[concat('uami-', uniqueString(resourceGroup().id))]",
-            "type": "string",
-            "metadata": {
-                "description": "Specifies the name of the user-assigned managed identity."
-            }
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.33.13.18514",
+      "templateHash": "8911902750073011696"
+    }
+  },
+  "parameters": {
+    "resourcePrefix": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]",
+      "minLength": 4,
+      "maxLength": 21,
+      "metadata": {
+        "description": "The string all resources will be prefixed with."
+      }
+    }
+  },
+  "variables": {
+    "containerName": "azureml",
+    "location": "[resourceGroup().location]",
+    "name": "[parameters('resourcePrefix')]",
+    "userPrincipalId": "[deployer().objectId]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2023-07-31-preview",
+      "name": "[format('{0}id', variables('name'))]",
+      "location": "[variables('location')]"
     },
-    "resources": [
-        {
-            "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
-            "apiVersion": "2023-07-31-preview",
-            "name": "[parameters('userAssignedIdentity')]",
-            "location": "[parameters('location')]"
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts",
-            "apiVersion": "2023-05-01",
-            "name": "[parameters('storageAccountName')]",
-            "location": "[parameters('location')]",
-            "sku": {
-                "name": "Standard_LRS"
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-05-01",
+      "name": "[toLower(format('{0}sa', variables('name')))]",
+      "location": "[variables('location')]",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "StorageV2",
+      "properties": {
+        "encryption": {
+          "services": {
+            "blob": {
+              "enabled": true
             },
-            "kind": "StorageV2",
-            "properties": {
-                "encryption": {
-                    "services": {
-                        "blob": {
-                            "enabled": true
-                        },
-                        "file": {
-                            "enabled": true
-                        }
-                    },
-                    "keySource": "Microsoft.Storage"
-                },
-                "supportsHttpsTrafficOnly": true,
-                "allowSharedKeyAccess": false
+            "file": {
+              "enabled": true
             }
+          },
+          "keySource": "Microsoft.Storage"
         },
-        {
-            "type": "Microsoft.Storage/storageAccounts",
-            "apiVersion": "2023-05-01",
-            "name": "[parameters('dataStoreStorageAccountName')]",
-            "location": "[parameters('location')]",
-            "sku": {
-                "name": "Premium_LRS"
+        "supportsHttpsTrafficOnly": true,
+        "allowSharedKeyAccess": false
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-05-01",
+      "name": "[toLower(format('{0}dsa', variables('name')))]",
+      "location": "[variables('location')]",
+      "sku": {
+        "name": "Premium_LRS"
+      },
+      "kind": "StorageV2",
+      "properties": {
+        "encryption": {
+          "services": {
+            "blob": {
+              "enabled": true
             },
-            "kind": "StorageV2",
-            "properties": {
-                "encryption": {
-                    "services": {
-                        "blob": {
-                            "enabled": true
-                        },
-                        "file": {
-                            "enabled": true
-                        }
-                    },
-                    "keySource": "Microsoft.Storage"
-                },
-                "supportsHttpsTrafficOnly": true,
-                "allowSharedKeyAccess": false
+            "file": {
+              "enabled": true
             }
+          },
+          "keySource": "Microsoft.Storage"
         },
-        {
-            "type": "Microsoft.Storage/storageAccounts/blobServices",
-            "apiVersion": "2023-05-01",
-            "name": "[format('{0}/{1}', parameters('dataStoreStorageAccountName'), 'default')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('dataStoreStorageAccountName'))]"
-            ]
+        "supportsHttpsTrafficOnly": true,
+        "allowSharedKeyAccess": false
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices",
+      "apiVersion": "2023-05-01",
+      "name": "[format('{0}/{1}', toLower(format('{0}dsa', variables('name'))), 'default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', toLower(format('{0}dsa', variables('name'))))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+      "apiVersion": "2023-05-01",
+      "name": "[format('{0}/{1}/{2}', toLower(format('{0}dsa', variables('name'))), 'default', variables('containerName'))]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/blobServices', toLower(format('{0}dsa', variables('name'))), 'default')]"
+      ]
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults",
+      "apiVersion": "2024-04-01-preview",
+      "name": "[format('{0}kv', variables('name'))]",
+      "location": "[variables('location')]",
+      "properties": {
+        "tenantId": "[subscription().tenantId]",
+        "sku": {
+          "family": "A",
+          "name": "standard"
         },
-        {
-            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
-            "apiVersion": "2023-05-01",
-            "name": "[format('{0}/{1}/{2}', parameters('dataStoreStorageAccountName'), 'default', parameters('containerName'))]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('dataStoreStorageAccountName'), 'default')]"
-            ]
-        },
-        {
-            "type": "Microsoft.KeyVault/vaults",
-            "apiVersion": "2024-04-01-preview",
-            "name": "[parameters('keyVaultName')]",
-            "location": "[parameters('location')]",
-            "properties": {
-                "tenantId": "[parameters('tenantId')]",
-                "sku": {
-                    "family": "A",
-                    "name": "standard"
-                },
-                "enableSoftDelete": false,
-                "accessPolicies": []
-            }
-        },
-        {
-            "type": "Microsoft.Authorization/roleAssignments",
-            "apiVersion": "2022-04-01",
-            "scope": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
-            "name": "[guid(resourceGroup().id, 'keyvault-admin')]",
-            "properties": {
-                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '00482a5a-887f-4fb3-b363-3b7fe8e74483')]",
-                "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('userAssignedIdentity')), '2018-11-30').principalId]"
-            },
-            "dependsOn": [
-                "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
-                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('userAssignedIdentity'))]"
-            ]
-        },
-        {
-            "type": "Microsoft.OperationalInsights/workspaces",
-            "apiVersion": "2023-09-01",
-            "name": "[parameters('logAnalyticsWorkspaceName')]",
-            "location": "[parameters('location')]",
-            "properties": {}
-        },
-        {
-            "type": "Microsoft.Insights/components",
-            "apiVersion": "2020-02-02",
-            "name": "[parameters('applicationInsightsName')]",
-            "location": "[parameters('location')]",
-            "kind": "web",
-            "properties": {
-                "Application_Type": "web"
-            }
-        },
-        {
-            "type": "Microsoft.ContainerRegistry/registries",
-            "apiVersion": "2023-11-01-preview",
-            "name": "[parameters('acrName')]",
-            "location": "[parameters('location')]",
-            "tags": {
-                "displayName": "Container Registry",
-                "container.registry": "[parameters('acrName')]"
-            },
-            "sku": {
-                "name": "Basic"
-            },
-            "properties": {
-                "adminUserEnabled": true
-            }
-        },
-        {
-            "type": "Microsoft.MachineLearningServices/workspaces",
-            "apiVersion": "2024-10-01",
-            "name": "[parameters('workspaceName')]",
-            "location": "[parameters('location')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Insights/components', parameters('applicationInsightsName'))]",
-                "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
-                "[resourceId('Microsoft.ContainerRegistry/registries', parameters('acrName'))]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
-            ],
-            "identity": {
-                "type": "systemAssigned"
-            },
-            "properties": {
-                "friendlyName": "[parameters('workspaceName')]",
-                "storageAccount": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
-                "keyVault": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
-                "containerRegistry": "[resourceId('Microsoft.ContainerRegistry/registries', parameters('acrName'))]",
-                "applicationInsights": "[resourceId('Microsoft.Insights/components', parameters('applicationInsightsName'))]"
-            },
-            "resources": [
-                {
-                    "type": "datastores",
-                    "apiVersion": "2020-05-01-preview",
-                    "name": "[parameters('dataStoreName')]",
-                    "location": "[parameters('location')]",
-                    "dependsOn": [
-                        "[parameters('workspaceName')]"
-                    ],
-                    "properties": {
-                        "DataStoreType": "blob",
-                        "SkipValidation": "[parameters('skipValidation')]",
-                        "AccountName": "[parameters('dataStoreStorageAccountName')]",
-                        "ContainerName": "[parameters('containerName')]",
-                        "AccountKey": "[listKeys(resourceId(resourceGroup().name,'Microsoft.Storage/storageAccounts', parameters('dataStoreStorageAccountName')), '2019-06-01').keys[0].value]",
-                        "StorageAccountSubscriptionId": "[subscription().subscriptionId]",
-                        "StorageAccountResourceGroup": "[resourceGroup().name]"
-                    }
-                }
-            ]
+        "enableSoftDelete": false,
+        "accessPolicies": []
+      }
+    },
+    {
+      "type": "Microsoft.OperationalInsights/workspaces",
+      "apiVersion": "2023-09-01",
+      "name": "[format('{0}law', variables('name'))]",
+      "location": "[variables('location')]",
+      "properties": {}
+    },
+    {
+      "type": "Microsoft.Insights/components",
+      "apiVersion": "2020-02-02",
+      "name": "[format('{0}ai', variables('name'))]",
+      "location": "[variables('location')]",
+      "kind": "web",
+      "properties": {
+        "Application_Type": "web"
+      }
+    },
+    {
+      "type": "Microsoft.ContainerRegistry/registries",
+      "apiVersion": "2023-11-01-preview",
+      "name": "[format('{0}acr', variables('name'))]",
+      "location": "[variables('location')]",
+      "sku": {
+        "name": "Basic"
+      },
+      "properties": {
+        "adminUserEnabled": true
+      }
+    },
+    {
+      "type": "Microsoft.MachineLearningServices/workspaces",
+      "apiVersion": "2024-10-01",
+      "name": "[format('{0}ws', variables('name'))]",
+      "location": "[variables('location')]",
+      "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "[format('{0}', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}id', variables('name'))))]": {}
         }
-    ]
+      },
+      "properties": {
+        "description": "[format('{0} ML Workspace', variables('name'))]",
+        "friendlyName": "[format('{0}ws', variables('name'))]",
+        "keyVault": "[resourceId('Microsoft.KeyVault/vaults', format('{0}kv', variables('name')))]",
+        "storageAccount": "[resourceId('Microsoft.Storage/storageAccounts', toLower(format('{0}sa', variables('name'))))]",
+        "containerRegistry": "[resourceId('Microsoft.ContainerRegistry/registries', format('{0}acr', variables('name')))]",
+        "applicationInsights": "[resourceId('Microsoft.Insights/components', format('{0}ai', variables('name')))]",
+        "primaryUserAssignedIdentity": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}id', variables('name')))]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.ContainerRegistry/registries', format('{0}acr', variables('name')))]",
+        "[resourceId('Microsoft.Insights/components', format('{0}ai', variables('name')))]",
+        "[resourceId('Microsoft.KeyVault/vaults', format('{0}kv', variables('name')))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', toLower(format('{0}sa', variables('name'))))]",
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}id', variables('name')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.MachineLearningServices/workspaces/datastores",
+      "apiVersion": "2024-10-01",
+      "name": "[format('{0}/{1}', format('{0}ws', variables('name')), toLower(format('{0}amlds', variables('name'))))]",
+      "properties": {
+        "credentials": {
+          "credentialsType": "None"
+        },
+        "datastoreType": "AzureBlob",
+        "accountName": "[toLower(format('{0}dsa', variables('name')))]",
+        "containerName": "[variables('containerName')]",
+        "subscriptionId": "[subscription().subscriptionId]",
+        "resourceGroup": "[resourceGroup().name]",
+        "serviceDataAccessAuthIdentity": "WorkspaceUserAssignedIdentity"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.MachineLearningServices/workspaces', format('{0}ws', variables('name')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "scope": "[format('Microsoft.MachineLearningServices/workspaces/{0}', format('{0}ws', variables('name')))]",
+      "name": "[guid(resourceId('Microsoft.MachineLearningServices/workspaces', format('{0}ws', variables('name'))), 'Workspace Contributor - UAMI')]",
+      "properties": {
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}id', variables('name'))), '2023-07-31-preview').principalId]",
+        "principalType": "ServicePrincipal"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.MachineLearningServices/workspaces', format('{0}ws', variables('name')))]",
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}id', variables('name')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "scope": "[format('Microsoft.KeyVault/vaults/{0}', format('{0}kv', variables('name')))]",
+      "name": "[guid(resourceId('Microsoft.KeyVault/vaults', format('{0}kv', variables('name'))), 'Key Vault Administrator - UAMI')]",
+      "properties": {
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '00482a5a-887f-4fb3-b363-3b7fe8e74483')]",
+        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}id', variables('name'))), '2023-07-31-preview').principalId]",
+        "principalType": "ServicePrincipal"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', format('{0}kv', variables('name')))]",
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}id', variables('name')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "scope": "[format('Microsoft.KeyVault/vaults/{0}', format('{0}kv', variables('name')))]",
+      "name": "[guid(resourceId('Microsoft.KeyVault/vaults', format('{0}kv', variables('name'))), 'Key Vault Contributor - UAMI')]",
+      "properties": {
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'f25e0fa2-a7c8-4377-a976-54943a77a395')]",
+        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}id', variables('name'))), '2023-07-31-preview').principalId]",
+        "principalType": "ServicePrincipal"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', format('{0}kv', variables('name')))]",
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}id', variables('name')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "scope": "[format('Microsoft.ContainerRegistry/registries/{0}', format('{0}acr', variables('name')))]",
+      "name": "[guid(resourceId('Microsoft.ContainerRegistry/registries', format('{0}acr', variables('name'))), 'ACR Pull - UAMI')]",
+      "properties": {
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')]",
+        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}id', variables('name'))), '2023-07-31-preview').principalId]",
+        "principalType": "ServicePrincipal"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.ContainerRegistry/registries', format('{0}acr', variables('name')))]",
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}id', variables('name')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "scope": "[format('Microsoft.ContainerRegistry/registries/{0}', format('{0}acr', variables('name')))]",
+      "name": "[guid(resourceId('Microsoft.ContainerRegistry/registries', format('{0}acr', variables('name'))), 'ACR Push - UAMI')]",
+      "properties": {
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '8311e382-0749-4cb8-b61a-304f252e45ec')]",
+        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}id', variables('name'))), '2023-07-31-preview').principalId]",
+        "principalType": "ServicePrincipal"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.ContainerRegistry/registries', format('{0}acr', variables('name')))]",
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}id', variables('name')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "scope": "[format('Microsoft.ContainerRegistry/registries/{0}', format('{0}acr', variables('name')))]",
+      "name": "[guid(resourceId('Microsoft.ContainerRegistry/registries', format('{0}acr', variables('name'))), 'ACR Repository Contributor - UAMI')]",
+      "properties": {
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '2efddaa5-3f1f-4df3-97df-af3f13818f4c')]",
+        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}id', variables('name'))), '2023-07-31-preview').principalId]",
+        "principalType": "ServicePrincipal"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.ContainerRegistry/registries', format('{0}acr', variables('name')))]",
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}id', variables('name')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "scope": "[format('Microsoft.Insights/components/{0}', format('{0}ai', variables('name')))]",
+      "name": "[guid(resourceId('Microsoft.Insights/components', format('{0}ai', variables('name'))), 'App Insights Contributor - UAMI')]",
+      "properties": {
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ae349356-3a1b-4a5e-921d-050484c6347e')]",
+        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}id', variables('name'))), '2023-07-31-preview').principalId]",
+        "principalType": "ServicePrincipal"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Insights/components', format('{0}ai', variables('name')))]",
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}id', variables('name')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "scope": "[format('Microsoft.Storage/storageAccounts/{0}', toLower(format('{0}sa', variables('name'))))]",
+      "name": "[guid(resourceId('Microsoft.Storage/storageAccounts', toLower(format('{0}sa', variables('name')))), 'Storage Account Contributor - UAMI')]",
+      "properties": {
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '17d1049b-9a84-46fb-8f53-869881c3d3ab')]",
+        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}id', variables('name'))), '2023-07-31-preview').principalId]",
+        "principalType": "ServicePrincipal"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', toLower(format('{0}sa', variables('name'))))]",
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}id', variables('name')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "scope": "[format('Microsoft.Storage/storageAccounts/{0}', toLower(format('{0}sa', variables('name'))))]",
+      "name": "[guid(resourceId('Microsoft.Storage/storageAccounts', toLower(format('{0}sa', variables('name')))), 'Storage Blob Data Contributor - UAMI')]",
+      "properties": {
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')]",
+        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}id', variables('name'))), '2023-07-31-preview').principalId]",
+        "principalType": "ServicePrincipal"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', toLower(format('{0}sa', variables('name'))))]",
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}id', variables('name')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "scope": "[format('Microsoft.Storage/storageAccounts/{0}', toLower(format('{0}dsa', variables('name'))))]",
+      "name": "[guid(resourceId('Microsoft.Storage/storageAccounts', toLower(format('{0}dsa', variables('name')))), 'Storage Account Contributor - UAMI')]",
+      "properties": {
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '17d1049b-9a84-46fb-8f53-869881c3d3ab')]",
+        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}id', variables('name'))), '2023-07-31-preview').principalId]",
+        "principalType": "ServicePrincipal"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', toLower(format('{0}dsa', variables('name'))))]",
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}id', variables('name')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "scope": "[format('Microsoft.Storage/storageAccounts/{0}', toLower(format('{0}dsa', variables('name'))))]",
+      "name": "[guid(resourceId('Microsoft.Storage/storageAccounts', toLower(format('{0}dsa', variables('name')))), 'Storage Blob Data Contributor - UAMI')]",
+      "properties": {
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')]",
+        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}id', variables('name'))), '2023-07-31-preview').principalId]",
+        "principalType": "ServicePrincipal"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', toLower(format('{0}dsa', variables('name'))))]",
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}id', variables('name')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "scope": "[format('Microsoft.OperationalInsights/workspaces/{0}', format('{0}law', variables('name')))]",
+      "name": "[guid(resourceId('Microsoft.OperationalInsights/workspaces', format('{0}law', variables('name'))), 'Log Analytics Contributor - UAMI')]",
+      "properties": {
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '92aaf0da-9dab-42b6-94a3-d43ce8d16293')]",
+        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}id', variables('name'))), '2023-07-31-preview').principalId]",
+        "principalType": "ServicePrincipal"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.OperationalInsights/workspaces', format('{0}law', variables('name')))]",
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}id', variables('name')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "scope": "[format('Microsoft.MachineLearningServices/workspaces/{0}', format('{0}ws', variables('name')))]",
+      "name": "[guid(resourceId('Microsoft.MachineLearningServices/workspaces', format('{0}ws', variables('name'))), 'Workspace Contributor - Sc-alt')]",
+      "properties": {
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+        "principalId": "[variables('userPrincipalId')]",
+        "principalType": "User"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.MachineLearningServices/workspaces', format('{0}ws', variables('name')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "scope": "[format('Microsoft.KeyVault/vaults/{0}', format('{0}kv', variables('name')))]",
+      "name": "[guid(resourceId('Microsoft.KeyVault/vaults', format('{0}kv', variables('name'))), 'Key Vault Administrator - Sc-alt')]",
+      "properties": {
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '00482a5a-887f-4fb3-b363-3b7fe8e74483')]",
+        "principalId": "[variables('userPrincipalId')]",
+        "principalType": "User"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', format('{0}kv', variables('name')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "scope": "[format('Microsoft.KeyVault/vaults/{0}', format('{0}kv', variables('name')))]",
+      "name": "[guid(resourceId('Microsoft.KeyVault/vaults', format('{0}kv', variables('name'))), 'Key Vault Contributor - Sc-alt')]",
+      "properties": {
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'f25e0fa2-a7c8-4377-a976-54943a77a395')]",
+        "principalId": "[variables('userPrincipalId')]",
+        "principalType": "User"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', format('{0}kv', variables('name')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "scope": "[format('Microsoft.ContainerRegistry/registries/{0}', format('{0}acr', variables('name')))]",
+      "name": "[guid(resourceId('Microsoft.ContainerRegistry/registries', format('{0}acr', variables('name'))), 'ACR Pull - Sc-alt')]",
+      "properties": {
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')]",
+        "principalId": "[variables('userPrincipalId')]",
+        "principalType": "User"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.ContainerRegistry/registries', format('{0}acr', variables('name')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "scope": "[format('Microsoft.ContainerRegistry/registries/{0}', format('{0}acr', variables('name')))]",
+      "name": "[guid(resourceId('Microsoft.ContainerRegistry/registries', format('{0}acr', variables('name'))), 'ACR Push - Sc-alt')]",
+      "properties": {
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '8311e382-0749-4cb8-b61a-304f252e45ec')]",
+        "principalId": "[variables('userPrincipalId')]",
+        "principalType": "User"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.ContainerRegistry/registries', format('{0}acr', variables('name')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "scope": "[format('Microsoft.ContainerRegistry/registries/{0}', format('{0}acr', variables('name')))]",
+      "name": "[guid(resourceId('Microsoft.ContainerRegistry/registries', format('{0}acr', variables('name'))), 'ACR Repository Contributor - Sc-alt')]",
+      "properties": {
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '2efddaa5-3f1f-4df3-97df-af3f13818f4c')]",
+        "principalId": "[variables('userPrincipalId')]",
+        "principalType": "User"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.ContainerRegistry/registries', format('{0}acr', variables('name')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "scope": "[format('Microsoft.Insights/components/{0}', format('{0}ai', variables('name')))]",
+      "name": "[guid(resourceId('Microsoft.Insights/components', format('{0}ai', variables('name'))), 'App Insights Contributor - Sc-alt')]",
+      "properties": {
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ae349356-3a1b-4a5e-921d-050484c6347e')]",
+        "principalId": "[variables('userPrincipalId')]",
+        "principalType": "User"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Insights/components', format('{0}ai', variables('name')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "scope": "[format('Microsoft.Storage/storageAccounts/{0}', toLower(format('{0}sa', variables('name'))))]",
+      "name": "[guid(resourceId('Microsoft.Storage/storageAccounts', toLower(format('{0}sa', variables('name')))), 'Storage Account Contributor - Sc-alt')]",
+      "properties": {
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '17d1049b-9a84-46fb-8f53-869881c3d3ab')]",
+        "principalId": "[variables('userPrincipalId')]",
+        "principalType": "User"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', toLower(format('{0}sa', variables('name'))))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "scope": "[format('Microsoft.Storage/storageAccounts/{0}', toLower(format('{0}sa', variables('name'))))]",
+      "name": "[guid(resourceId('Microsoft.Storage/storageAccounts', toLower(format('{0}sa', variables('name')))), 'Storage Blob Data Contributor - Sc-alt')]",
+      "properties": {
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')]",
+        "principalId": "[variables('userPrincipalId')]",
+        "principalType": "User"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', toLower(format('{0}sa', variables('name'))))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "scope": "[format('Microsoft.Storage/storageAccounts/{0}', toLower(format('{0}dsa', variables('name'))))]",
+      "name": "[guid(resourceId('Microsoft.Storage/storageAccounts', toLower(format('{0}dsa', variables('name')))), 'Storage Account Contributor - Sc-alt')]",
+      "properties": {
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '17d1049b-9a84-46fb-8f53-869881c3d3ab')]",
+        "principalId": "[variables('userPrincipalId')]",
+        "principalType": "User"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', toLower(format('{0}dsa', variables('name'))))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "scope": "[format('Microsoft.Storage/storageAccounts/{0}', toLower(format('{0}dsa', variables('name'))))]",
+      "name": "[guid(resourceId('Microsoft.Storage/storageAccounts', toLower(format('{0}dsa', variables('name')))), 'Storage Blob Data Contributor - Sc-alt')]",
+      "properties": {
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')]",
+        "principalId": "[variables('userPrincipalId')]",
+        "principalType": "User"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', toLower(format('{0}dsa', variables('name'))))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "scope": "[format('Microsoft.OperationalInsights/workspaces/{0}', format('{0}law', variables('name')))]",
+      "name": "[guid(resourceId('Microsoft.OperationalInsights/workspaces', format('{0}law', variables('name'))), 'Log Analytics Contributor - Sc-alt')]",
+      "properties": {
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '92aaf0da-9dab-42b6-94a3-d43ce8d16293')]",
+        "principalId": "[variables('userPrincipalId')]",
+        "principalType": "User"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.OperationalInsights/workspaces', format('{0}law', variables('name')))]"
+      ]
+    }
+  ]
 }
