@@ -158,7 +158,7 @@ resource mlWorkspace_dataStore 'Microsoft.MachineLearningServices/workspaces/dat
 
 // Workspace role assignments for the user-assigned identity
 
-resource roleWorkspaceContributorUAMI 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource roleWorkspaceContributorUAMI 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: mlWorkspace
   name: guid(mlWorkspace.id, 'Workspace Contributor - UAMI')
   properties: {
@@ -170,7 +170,7 @@ resource roleWorkspaceContributorUAMI 'Microsoft.Authorization/roleAssignments@2
 
 // Key Vault role assignments for the user-assigned identity
 
-resource roleKeyVaultAdminUAMI 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource roleKeyVaultAdminUAMI 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: keyVault
   name: guid(keyVault.id, 'Key Vault Administrator - UAMI')
   properties: {
@@ -180,7 +180,7 @@ resource roleKeyVaultAdminUAMI 'Microsoft.Authorization/roleAssignments@2020-04-
   }
 }
 
-resource roleKeyVaultContributorUAMI 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource roleKeyVaultContributorUAMI 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: keyVault
   name: guid(keyVault.id, 'Key Vault Contributor - UAMI')
   properties: {
@@ -192,7 +192,7 @@ resource roleKeyVaultContributorUAMI 'Microsoft.Authorization/roleAssignments@20
 
 // ACR role assignments for the user-assigned identity
 
-resource roleAcrPullUAMI 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource roleAcrPullUAMI 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: acr
   name: guid(acr.id, 'ACR Pull - UAMI')
   properties: {
@@ -202,7 +202,7 @@ resource roleAcrPullUAMI 'Microsoft.Authorization/roleAssignments@2020-04-01-pre
   }
 }
 
-resource roleAcrPushUAMI 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource roleAcrPushUAMI 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: acr
   name: guid(acr.id, 'ACR Push - UAMI')
   properties: {
@@ -212,7 +212,7 @@ resource roleAcrPushUAMI 'Microsoft.Authorization/roleAssignments@2020-04-01-pre
   }
 }
 
-resource roleAcrRepositoryContributorUAMI 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource roleAcrRepositoryContributorUAMI 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: acr
   name: guid(acr.id, 'ACR Repository Contributor - UAMI')
   properties: {
@@ -224,7 +224,7 @@ resource roleAcrRepositoryContributorUAMI 'Microsoft.Authorization/roleAssignmen
 
 // App Insights role assignments for the user-assigned identity
 
-resource roleAppInsightsContributorUAMI 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource roleAppInsightsContributorUAMI 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: applicationInsights
   name: guid(applicationInsights.id, 'App Insights Contributor - UAMI')
   properties: {
@@ -236,7 +236,7 @@ resource roleAppInsightsContributorUAMI 'Microsoft.Authorization/roleAssignments
 
 // Storage Account role assignments for the user-assigned identity
 
-resource roleStorageContributorUAMI 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource roleStorageContributorUAMI 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: storageAccount
   name: guid(storageAccount.id, 'Storage Account Contributor - UAMI')
   properties: {
@@ -246,7 +246,7 @@ resource roleStorageContributorUAMI 'Microsoft.Authorization/roleAssignments@202
   }
 }
 
-resource roleStorageBlobDataContributorUAMI 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource roleStorageBlobDataContributorUAMI 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: storageAccount
   name: guid(storageAccount.id, 'Storage Blob Data Contributor - UAMI')
   properties: {
@@ -256,7 +256,7 @@ resource roleStorageBlobDataContributorUAMI 'Microsoft.Authorization/roleAssignm
   }
 }
 
-resource roleDataStoreStorageContributorUAMI 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource roleDataStoreStorageContributorUAMI 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: dataStoreStorageAccount
   name: guid(dataStoreStorageAccount.id, 'Storage Account Contributor - UAMI')
   properties: {
@@ -266,7 +266,7 @@ resource roleDataStoreStorageContributorUAMI 'Microsoft.Authorization/roleAssign
   }
 }
 
-resource roleDataStoreStorageBlobDataContributorUAMI 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource roleDataStoreStorageBlobDataContributorUAMI 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: dataStoreStorageAccount
   name: guid(dataStoreStorageAccount.id, 'Storage Blob Data Contributor - UAMI')
   properties: {
@@ -276,7 +276,7 @@ resource roleDataStoreStorageBlobDataContributorUAMI 'Microsoft.Authorization/ro
   }
 }
 
-resource roleLogAnalyticsContributorUAMI 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource roleLogAnalyticsContributorUAMI 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: logAnalyticsWorkspace
   name: guid(logAnalyticsWorkspace.id, 'Log Analytics Contributor - UAMI')
   properties: {
@@ -291,7 +291,7 @@ resource roleLogAnalyticsContributorUAMI 'Microsoft.Authorization/roleAssignment
 // ------------------
 
 
-resource roleWorkspaceContributorScalt 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource roleWorkspaceContributorScalt 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: mlWorkspace
   name: guid(mlWorkspace.id, 'Workspace Contributor - Sc-alt')
   properties: {
@@ -303,7 +303,7 @@ resource roleWorkspaceContributorScalt 'Microsoft.Authorization/roleAssignments@
 
 // Key Vault role assignments for the user-assigned identity
 
-resource roleKeyVaultAdminScalt 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource roleKeyVaultAdminScalt 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: keyVault
   name: guid(keyVault.id, 'Key Vault Administrator - Sc-alt')
   properties: {
@@ -313,7 +313,7 @@ resource roleKeyVaultAdminScalt 'Microsoft.Authorization/roleAssignments@2020-04
   }
 }
 
-resource roleKeyVaultContributorScalt 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource roleKeyVaultContributorScalt 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: keyVault
   name: guid(keyVault.id, 'Key Vault Contributor - Sc-alt')
   properties: {
@@ -325,7 +325,7 @@ resource roleKeyVaultContributorScalt 'Microsoft.Authorization/roleAssignments@2
 
 // ACR role assignments for the user-assigned identity
 
-resource roleAcrPullScalt 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource roleAcrPullScalt 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: acr
   name: guid(acr.id, 'ACR Pull - Sc-alt')
   properties: {
@@ -335,7 +335,7 @@ resource roleAcrPullScalt 'Microsoft.Authorization/roleAssignments@2020-04-01-pr
   }
 }
 
-resource roleAcrPushScalt 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource roleAcrPushScalt 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: acr
   name: guid(acr.id, 'ACR Push - Sc-alt')
   properties: {
@@ -345,7 +345,7 @@ resource roleAcrPushScalt 'Microsoft.Authorization/roleAssignments@2020-04-01-pr
   }
 }
 
-resource roleAcrRepositoryContributorScalt 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource roleAcrRepositoryContributorScalt 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: acr
   name: guid(acr.id, 'ACR Repository Contributor - Sc-alt')
   properties: {
@@ -357,7 +357,7 @@ resource roleAcrRepositoryContributorScalt 'Microsoft.Authorization/roleAssignme
 
 // App Insights role assignments for the user-assigned identity
 
-resource roleAppInsightsContributorScalt 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource roleAppInsightsContributorScalt 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: applicationInsights
   name: guid(applicationInsights.id, 'App Insights Contributor - Sc-alt')
   properties: {
@@ -369,7 +369,7 @@ resource roleAppInsightsContributorScalt 'Microsoft.Authorization/roleAssignment
 
 // Storage Account role assignments for the user
 
-resource roleStorageContributorScalt 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource roleStorageContributorScalt 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: storageAccount
   name: guid(storageAccount.id, 'Storage Account Contributor - Sc-alt')
   properties: {
@@ -379,7 +379,7 @@ resource roleStorageContributorScalt 'Microsoft.Authorization/roleAssignments@20
   }
 }
 
-resource roleStorageBlobDataContributorScalt 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource roleStorageBlobDataContributorScalt 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: storageAccount
   name: guid(storageAccount.id, 'Storage Blob Data Contributor - Sc-alt')
   properties: {
@@ -389,7 +389,7 @@ resource roleStorageBlobDataContributorScalt 'Microsoft.Authorization/roleAssign
   }
 }
 
-resource roleDataStoreStorageContributorScalt 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource roleDataStoreStorageContributorScalt 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: dataStoreStorageAccount
   name: guid(dataStoreStorageAccount.id, 'Storage Account Contributor - Sc-alt')
   properties: {
@@ -399,7 +399,7 @@ resource roleDataStoreStorageContributorScalt 'Microsoft.Authorization/roleAssig
   }
 }
 
-resource roleDataStoreStorageBlobDataContributorSCalt 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource roleDataStoreStorageBlobDataContributorSCalt 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: dataStoreStorageAccount
   name: guid(dataStoreStorageAccount.id, 'Storage Blob Data Contributor - Sc-alt')
   properties: {
@@ -410,7 +410,7 @@ resource roleDataStoreStorageBlobDataContributorSCalt 'Microsoft.Authorization/r
 }
 
 
-resource roleLogAnalyticsContributorScalt 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource roleLogAnalyticsContributorScalt 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: logAnalyticsWorkspace
   name: guid(logAnalyticsWorkspace.id, 'Log Analytics Contributor - Sc-alt')
   properties: {

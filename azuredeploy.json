@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.33.13.18514",
-      "templateHash": "8911902750073011696"
+      "templateHash": "18403194828240944531"
     }
   },
   "parameters": {
@@ -191,7 +191,7 @@
     },
     {
       "type": "Microsoft.Authorization/roleAssignments",
-      "apiVersion": "2020-04-01-preview",
+      "apiVersion": "2022-04-01",
       "scope": "[format('Microsoft.MachineLearningServices/workspaces/{0}', format('{0}ws', variables('name')))]",
       "name": "[guid(resourceId('Microsoft.MachineLearningServices/workspaces', format('{0}ws', variables('name'))), 'Workspace Contributor - UAMI')]",
       "properties": {
@@ -206,7 +206,7 @@
     },
     {
       "type": "Microsoft.Authorization/roleAssignments",
-      "apiVersion": "2020-04-01-preview",
+      "apiVersion": "2022-04-01",
       "scope": "[format('Microsoft.KeyVault/vaults/{0}', format('{0}kv', variables('name')))]",
       "name": "[guid(resourceId('Microsoft.KeyVault/vaults', format('{0}kv', variables('name'))), 'Key Vault Administrator - UAMI')]",
       "properties": {
@@ -221,7 +221,7 @@
     },
     {
       "type": "Microsoft.Authorization/roleAssignments",
-      "apiVersion": "2020-04-01-preview",
+      "apiVersion": "2022-04-01",
       "scope": "[format('Microsoft.KeyVault/vaults/{0}', format('{0}kv', variables('name')))]",
       "name": "[guid(resourceId('Microsoft.KeyVault/vaults', format('{0}kv', variables('name'))), 'Key Vault Contributor - UAMI')]",
       "properties": {
@@ -236,7 +236,7 @@
     },
     {
       "type": "Microsoft.Authorization/roleAssignments",
-      "apiVersion": "2020-04-01-preview",
+      "apiVersion": "2022-04-01",
       "scope": "[format('Microsoft.ContainerRegistry/registries/{0}', format('{0}acr', variables('name')))]",
       "name": "[guid(resourceId('Microsoft.ContainerRegistry/registries', format('{0}acr', variables('name'))), 'ACR Pull - UAMI')]",
       "properties": {
@@ -251,7 +251,7 @@
     },
     {
       "type": "Microsoft.Authorization/roleAssignments",
-      "apiVersion": "2020-04-01-preview",
+      "apiVersion": "2022-04-01",
       "scope": "[format('Microsoft.ContainerRegistry/registries/{0}', format('{0}acr', variables('name')))]",
       "name": "[guid(resourceId('Microsoft.ContainerRegistry/registries', format('{0}acr', variables('name'))), 'ACR Push - UAMI')]",
       "properties": {
@@ -266,7 +266,7 @@
     },
     {
       "type": "Microsoft.Authorization/roleAssignments",
-      "apiVersion": "2020-04-01-preview",
+      "apiVersion": "2022-04-01",
       "scope": "[format('Microsoft.ContainerRegistry/registries/{0}', format('{0}acr', variables('name')))]",
       "name": "[guid(resourceId('Microsoft.ContainerRegistry/registries', format('{0}acr', variables('name'))), 'ACR Repository Contributor - UAMI')]",
       "properties": {
@@ -281,7 +281,7 @@
     },
     {
       "type": "Microsoft.Authorization/roleAssignments",
-      "apiVersion": "2020-04-01-preview",
+      "apiVersion": "2022-04-01",
       "scope": "[format('Microsoft.Insights/components/{0}', format('{0}ai', variables('name')))]",
       "name": "[guid(resourceId('Microsoft.Insights/components', format('{0}ai', variables('name'))), 'App Insights Contributor - UAMI')]",
       "properties": {
@@ -296,7 +296,7 @@
     },
     {
       "type": "Microsoft.Authorization/roleAssignments",
-      "apiVersion": "2020-04-01-preview",
+      "apiVersion": "2022-04-01",
       "scope": "[format('Microsoft.Storage/storageAccounts/{0}', toLower(format('{0}sa', variables('name'))))]",
       "name": "[guid(resourceId('Microsoft.Storage/storageAccounts', toLower(format('{0}sa', variables('name')))), 'Storage Account Contributor - UAMI')]",
       "properties": {
@@ -311,7 +311,7 @@
     },
     {
       "type": "Microsoft.Authorization/roleAssignments",
-      "apiVersion": "2020-04-01-preview",
+      "apiVersion": "2022-04-01",
       "scope": "[format('Microsoft.Storage/storageAccounts/{0}', toLower(format('{0}sa', variables('name'))))]",
       "name": "[guid(resourceId('Microsoft.Storage/storageAccounts', toLower(format('{0}sa', variables('name')))), 'Storage Blob Data Contributor - UAMI')]",
       "properties": {
@@ -326,7 +326,7 @@
     },
     {
       "type": "Microsoft.Authorization/roleAssignments",
-      "apiVersion": "2020-04-01-preview",
+      "apiVersion": "2022-04-01",
       "scope": "[format('Microsoft.Storage/storageAccounts/{0}', toLower(format('{0}dsa', variables('name'))))]",
       "name": "[guid(resourceId('Microsoft.Storage/storageAccounts', toLower(format('{0}dsa', variables('name')))), 'Storage Account Contributor - UAMI')]",
       "properties": {
@@ -341,7 +341,7 @@
     },
     {
       "type": "Microsoft.Authorization/roleAssignments",
-      "apiVersion": "2020-04-01-preview",
+      "apiVersion": "2022-04-01",
       "scope": "[format('Microsoft.Storage/storageAccounts/{0}', toLower(format('{0}dsa', variables('name'))))]",
       "name": "[guid(resourceId('Microsoft.Storage/storageAccounts', toLower(format('{0}dsa', variables('name')))), 'Storage Blob Data Contributor - UAMI')]",
       "properties": {
@@ -356,7 +356,7 @@
     },
     {
       "type": "Microsoft.Authorization/roleAssignments",
-      "apiVersion": "2020-04-01-preview",
+      "apiVersion": "2022-04-01",
       "scope": "[format('Microsoft.OperationalInsights/workspaces/{0}', format('{0}law', variables('name')))]",
       "name": "[guid(resourceId('Microsoft.OperationalInsights/workspaces', format('{0}law', variables('name'))), 'Log Analytics Contributor - UAMI')]",
       "properties": {
@@ -371,7 +371,7 @@
     },
     {
       "type": "Microsoft.Authorization/roleAssignments",
-      "apiVersion": "2020-04-01-preview",
+      "apiVersion": "2022-04-01",
       "scope": "[format('Microsoft.MachineLearningServices/workspaces/{0}', format('{0}ws', variables('name')))]",
       "name": "[guid(resourceId('Microsoft.MachineLearningServices/workspaces', format('{0}ws', variables('name'))), 'Workspace Contributor - Sc-alt')]",
       "properties": {
@@ -385,7 +385,7 @@
     },
     {
       "type": "Microsoft.Authorization/roleAssignments",
-      "apiVersion": "2020-04-01-preview",
+      "apiVersion": "2022-04-01",
       "scope": "[format('Microsoft.KeyVault/vaults/{0}', format('{0}kv', variables('name')))]",
       "name": "[guid(resourceId('Microsoft.KeyVault/vaults', format('{0}kv', variables('name'))), 'Key Vault Administrator - Sc-alt')]",
       "properties": {
@@ -399,7 +399,7 @@
     },
     {
       "type": "Microsoft.Authorization/roleAssignments",
-      "apiVersion": "2020-04-01-preview",
+      "apiVersion": "2022-04-01",
       "scope": "[format('Microsoft.KeyVault/vaults/{0}', format('{0}kv', variables('name')))]",
       "name": "[guid(resourceId('Microsoft.KeyVault/vaults', format('{0}kv', variables('name'))), 'Key Vault Contributor - Sc-alt')]",
       "properties": {
@@ -413,7 +413,7 @@
     },
     {
       "type": "Microsoft.Authorization/roleAssignments",
-      "apiVersion": "2020-04-01-preview",
+      "apiVersion": "2022-04-01",
       "scope": "[format('Microsoft.ContainerRegistry/registries/{0}', format('{0}acr', variables('name')))]",
       "name": "[guid(resourceId('Microsoft.ContainerRegistry/registries', format('{0}acr', variables('name'))), 'ACR Pull - Sc-alt')]",
       "properties": {
@@ -427,7 +427,7 @@
     },
     {
       "type": "Microsoft.Authorization/roleAssignments",
-      "apiVersion": "2020-04-01-preview",
+      "apiVersion": "2022-04-01",
       "scope": "[format('Microsoft.ContainerRegistry/registries/{0}', format('{0}acr', variables('name')))]",
       "name": "[guid(resourceId('Microsoft.ContainerRegistry/registries', format('{0}acr', variables('name'))), 'ACR Push - Sc-alt')]",
       "properties": {
@@ -441,7 +441,7 @@
     },
     {
       "type": "Microsoft.Authorization/roleAssignments",
-      "apiVersion": "2020-04-01-preview",
+      "apiVersion": "2022-04-01",
       "scope": "[format('Microsoft.ContainerRegistry/registries/{0}', format('{0}acr', variables('name')))]",
       "name": "[guid(resourceId('Microsoft.ContainerRegistry/registries', format('{0}acr', variables('name'))), 'ACR Repository Contributor - Sc-alt')]",
       "properties": {
@@ -455,7 +455,7 @@
     },
     {
       "type": "Microsoft.Authorization/roleAssignments",
-      "apiVersion": "2020-04-01-preview",
+      "apiVersion": "2022-04-01",
       "scope": "[format('Microsoft.Insights/components/{0}', format('{0}ai', variables('name')))]",
       "name": "[guid(resourceId('Microsoft.Insights/components', format('{0}ai', variables('name'))), 'App Insights Contributor - Sc-alt')]",
       "properties": {
@@ -469,7 +469,7 @@
     },
     {
       "type": "Microsoft.Authorization/roleAssignments",
-      "apiVersion": "2020-04-01-preview",
+      "apiVersion": "2022-04-01",
       "scope": "[format('Microsoft.Storage/storageAccounts/{0}', toLower(format('{0}sa', variables('name'))))]",
       "name": "[guid(resourceId('Microsoft.Storage/storageAccounts', toLower(format('{0}sa', variables('name')))), 'Storage Account Contributor - Sc-alt')]",
       "properties": {
@@ -483,7 +483,7 @@
     },
     {
       "type": "Microsoft.Authorization/roleAssignments",
-      "apiVersion": "2020-04-01-preview",
+      "apiVersion": "2022-04-01",
       "scope": "[format('Microsoft.Storage/storageAccounts/{0}', toLower(format('{0}sa', variables('name'))))]",
       "name": "[guid(resourceId('Microsoft.Storage/storageAccounts', toLower(format('{0}sa', variables('name')))), 'Storage Blob Data Contributor - Sc-alt')]",
       "properties": {
@@ -497,7 +497,7 @@
     },
     {
       "type": "Microsoft.Authorization/roleAssignments",
-      "apiVersion": "2020-04-01-preview",
+      "apiVersion": "2022-04-01",
       "scope": "[format('Microsoft.Storage/storageAccounts/{0}', toLower(format('{0}dsa', variables('name'))))]",
       "name": "[guid(resourceId('Microsoft.Storage/storageAccounts', toLower(format('{0}dsa', variables('name')))), 'Storage Account Contributor - Sc-alt')]",
       "properties": {
@@ -511,7 +511,7 @@
     },
     {
       "type": "Microsoft.Authorization/roleAssignments",
-      "apiVersion": "2020-04-01-preview",
+      "apiVersion": "2022-04-01",
       "scope": "[format('Microsoft.Storage/storageAccounts/{0}', toLower(format('{0}dsa', variables('name'))))]",
       "name": "[guid(resourceId('Microsoft.Storage/storageAccounts', toLower(format('{0}dsa', variables('name')))), 'Storage Blob Data Contributor - Sc-alt')]",
       "properties": {
@@ -525,7 +525,7 @@
     },
     {
       "type": "Microsoft.Authorization/roleAssignments",
-      "apiVersion": "2020-04-01-preview",
+      "apiVersion": "2022-04-01",
       "scope": "[format('Microsoft.OperationalInsights/workspaces/{0}', format('{0}law', variables('name')))]",
       "name": "[guid(resourceId('Microsoft.OperationalInsights/workspaces', format('{0}law', variables('name'))), 'Log Analytics Contributor - Sc-alt')]",
       "properties": {
