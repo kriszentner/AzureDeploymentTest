@@ -115,7 +115,7 @@ resource acr 'Microsoft.ContainerRegistry/registries@2023-11-01-preview' = {
 // Our ML workspace uses a Standard SKU Storage account. We create a premium one for the data store.
 // Premium storage accounts aren't allowed in the storageAccount field.
 // API 2024-07-01-preview is required for the systemDatastoresAuthMode property. 
-// The latest API version is 2024-10-01 doesn't seem to support it.
+// The latest API version "2024-10-01" doesn't seem to support it.
 
 resource mlWorkspace 'Microsoft.MachineLearningServices/workspaces@2024-07-01-preview' = {
   name: '${name}ws'
