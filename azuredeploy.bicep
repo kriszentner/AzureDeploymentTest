@@ -112,10 +112,12 @@ resource acr 'Microsoft.ContainerRegistry/registries@2023-11-01-preview' = {
   }
 }
 
-// Our ML workspace uses a Standard SKU Storage account. We create a premium one for the data store.
+
 // Premium storage accounts aren't allowed in the storageAccount field.
+//
 // API 2024-07-01-preview is required for the systemDatastoresAuthMode property. 
 // The latest API version "2024-10-01" doesn't seem to support it.
+// The 2024-10-01 API also doesn't seem to precreate datastores the way that 2024-07-01-preview does.
 
 resource mlWorkspace 'Microsoft.MachineLearningServices/workspaces@2024-07-01-preview' = {
   name: '${name}ws'
@@ -138,10 +140,12 @@ resource mlWorkspace 'Microsoft.MachineLearningServices/workspaces@2024-07-01-pr
   }
 }
 
+/*
+// Our ML workspace uses a Standard SKU Storage account. We create a premium one for the data store.
+
 resource mlWorkspace_dataStore 'Microsoft.MachineLearningServices/workspaces/datastores@2024-10-01' = {
   parent: mlWorkspace
-  // name: toLower('${name}amlds')
-  name: 'workplaceblobstore'
+  name: toLower('${name}amlds')
   properties: {
     credentials: {
        credentialsType: 'None'
@@ -155,7 +159,7 @@ resource mlWorkspace_dataStore 'Microsoft.MachineLearningServices/workspaces/dat
     
   }
 }
-
+*/
 
 // -------------------
 // Managed Identity Operator role assignments
