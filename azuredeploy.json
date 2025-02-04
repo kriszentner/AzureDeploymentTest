@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.33.93.31351",
-      "templateHash": "1829815308789171325"
+      "templateHash": "4925921017420213653"
     }
   },
   "parameters": {
@@ -169,25 +169,6 @@
         "[resourceId('Microsoft.KeyVault/vaults', format('{0}kv', variables('name')))]",
         "[resourceId('Microsoft.Storage/storageAccounts', toLower(format('{0}sa', variables('name'))))]",
         "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}id', variables('name')))]"
-      ]
-    },
-    {
-      "type": "Microsoft.MachineLearningServices/workspaces/datastores",
-      "apiVersion": "2024-10-01",
-      "name": "[format('{0}/{1}', format('{0}ws', variables('name')), 'workplaceblobstore')]",
-      "properties": {
-        "credentials": {
-          "credentialsType": "None"
-        },
-        "datastoreType": "AzureBlob",
-        "accountName": "[toLower(format('{0}dsa', variables('name')))]",
-        "containerName": "[variables('containerName')]",
-        "subscriptionId": "[subscription().subscriptionId]",
-        "resourceGroup": "[resourceGroup().name]",
-        "serviceDataAccessAuthIdentity": "WorkspaceUserAssignedIdentity"
-      },
-      "dependsOn": [
-        "[resourceId('Microsoft.MachineLearningServices/workspaces', format('{0}ws', variables('name')))]"
       ]
     },
     {
