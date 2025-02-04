@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.33.93.31351",
-      "templateHash": "9077547655560042515"
+      "templateHash": "1829815308789171325"
     }
   },
   "parameters": {
@@ -144,7 +144,7 @@
     },
     {
       "type": "Microsoft.MachineLearningServices/workspaces",
-      "apiVersion": "2024-10-01",
+      "apiVersion": "2024-07-01-preview",
       "name": "[format('{0}ws', variables('name'))]",
       "location": "[variables('location')]",
       "identity": {
@@ -160,7 +160,8 @@
         "storageAccount": "[resourceId('Microsoft.Storage/storageAccounts', toLower(format('{0}sa', variables('name'))))]",
         "containerRegistry": "[resourceId('Microsoft.ContainerRegistry/registries', format('{0}acr', variables('name')))]",
         "applicationInsights": "[resourceId('Microsoft.Insights/components', format('{0}ai', variables('name')))]",
-        "primaryUserAssignedIdentity": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}id', variables('name')))]"
+        "primaryUserAssignedIdentity": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}id', variables('name')))]",
+        "systemDatastoresAuthMode": "Identity"
       },
       "dependsOn": [
         "[resourceId('Microsoft.ContainerRegistry/registries', format('{0}acr', variables('name')))]",
@@ -173,7 +174,7 @@
     {
       "type": "Microsoft.MachineLearningServices/workspaces/datastores",
       "apiVersion": "2024-10-01",
-      "name": "[format('{0}/{1}', format('{0}ws', variables('name')), toLower(format('{0}amlds', variables('name'))))]",
+      "name": "[format('{0}/{1}', format('{0}ws', variables('name')), 'workplaceblobstore')]",
       "properties": {
         "credentials": {
           "credentialsType": "None"
